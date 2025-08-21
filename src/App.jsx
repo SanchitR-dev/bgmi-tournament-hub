@@ -4,7 +4,7 @@ import TournamentPage from './components/TournamentPage';
 import VideoBackground from './components/VideoBackground';
 import './App.css';
 import { subscribeTournaments, saveTournament } from './firebase';
-import { motion, AnimatePresence } from 'framer-motion';
+// CSS-based animations will be used instead of framer-motion
 import NotificationProvider, { useNotification } from './components/NotificationProvider';
 import { signInWithGoogle, signOut, onAuthChanged } from './firebase';
 
@@ -132,17 +132,9 @@ function App() {
               goHome={goHome}
             />
           ) : (
-            // Use a small animation for the list container
-            <AnimatePresence>
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.35 }}
-              >
+              <div className="fade-enter">
                 <HomePage tournaments={tournaments} addTournament={addTournament} setSelectedTournament={setSelectedTournament} />
-              </motion.div>
-            </AnimatePresence>
+              </div>
           )}
         </div>
       </div>

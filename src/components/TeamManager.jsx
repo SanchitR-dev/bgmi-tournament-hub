@@ -1,7 +1,7 @@
 // src/components/TeamManager.jsx
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+// use CSS transitions instead of framer-motion
 import { useNotification } from './NotificationProvider';
 
 function TeamManager({ tournament, updateTournament }) {
@@ -95,31 +95,23 @@ function TeamManager({ tournament, updateTournament }) {
       {tournament.teams.length > 0 && (
         <div className="card">
           <h2>Registered Teams</h2>
-          <AnimatePresence>
-            {tournament.teams.map(team => (
-              <motion.div
-                key={team.id}
-                className="team-details"
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.25 }}
-                layout
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h3 style={{ margin: 0 }}>{team.name}</h3>
-                  <div>
-                    <button onClick={() => handleDeleteTeam(team.id)} style={{ marginLeft: 8 }}>Delete</button>
+            <div className="team-list">
+              {tournament.teams.map(team => (
+                <div key={team.id} className="team-details team-fade">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <h3 style={{ margin: 0 }}>{team.name}</h3>
+                    <div>
+                      <button onClick={() => handleDeleteTeam(team.id)} style={{ marginLeft: 8 }}>Delete</button>
+                    </div>
                   </div>
+                  <ul>
+                    {team.players.map((player, i) => (
+                      <li key={i}>{player}</li>
+                    ))}
+                  </ul>
                 </div>
-                <ul>
-                  {team.players.map((player, i) => (
-                    <li key={i}>{player}</li>
-                  ))}
-                </ul>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+              ))}
+            </div>
         </div>
       )}
 

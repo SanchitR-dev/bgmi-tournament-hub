@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+// CSS-based toasts and transitions used instead of framer-motion
 import LoaderOverlay from './LoaderOverlay';
 
 const NotificationContext = createContext(null);
@@ -44,37 +44,19 @@ export default function NotificationProvider({ children }) {
       <LoaderOverlay visible={loading} />
 
       <div style={{ position: 'fixed', right: 16, top: 16, zIndex: 9999 }}>
-        <AnimatePresence>
-          {toasts.map((t) => (
-            <motion.div
-              key={t.id}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ duration: 0.2 }}
-              style={{
-                marginBottom: 8,
-                padding: '10px 14px',
-                borderRadius: 8,
-                color: '#fff',
-                background: t.type === 'error' ? '#e53e3e' : t.type === 'success' ? '#16a34a' : '#334155',
-                boxShadow: '0 4px 14px rgba(0,0,0,0.12)',
-                minWidth: 180,
-              }}
-              onClick={() => removeToast(t.id)}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ flex: 1 }}>{t.message}</div>
-                <div style={{ marginLeft: 8, display: 'flex', gap: 8 }}>
-                  {t.undo && (
-                    <button onClick={() => { t.undo && t.undo(); removeToast(t.id); }} style={{ color: '#fff', background: 'transparent', border: 'none' }}>Undo</button>
-                  )}
-                  <button onClick={() => removeToast(t.id)} style={{ color: '#fff', background: 'transparent', border: 'none' }}>✕</button>
-                </div>
+        {toasts.map((t) => (
+          <div key={t.id} className={`toast ${t.type}`} style={{ marginBottom: 8, minWidth: 180 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ flex: 1 }}>{t.message}</div>
+              <div style={{ marginLeft: 8, display: 'flex', gap: 8 }}>
+                {t.undo && (
+                  <button onClick={() => { t.undo && t.undo(); removeToast(t.id); }} style={{ color: '#fff', background: 'transparent', border: 'none' }}>Undo</button>
+                )}
+                <button onClick={() => removeToast(t.id)} style={{ color: '#fff', background: 'transparent', border: 'none' }}>✕</button>
               </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
+            </div>
+          </div>
+        ))}
       </div>
       {/* Persistent center */}
       <div style={{ position: 'fixed', right: 16, top: 64, zIndex: 9999 }}>

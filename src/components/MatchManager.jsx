@@ -4,7 +4,7 @@
 // A new tab-specific warning has been added.
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+// use CSS transitions instead of framer-motion
 import { useNotification } from './NotificationProvider';
 
 const POINT_PER_KILL = 1;
@@ -125,22 +125,14 @@ function MatchManager({ tournament, updateTournament }) {
             </tr>
           </thead>
           <tbody>
-            <AnimatePresence>
-              {leaderboard.map((team, index) => (
-                <motion.tr
-                  key={team.teamId}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.22 }}
-                >
-                  <td>{index + 1}</td>
-                  <td>{team.teamName}</td>
-                  <td>{team.kills}</td>
-                  <td>{team.totalPoints}</td>
-                </motion.tr>
-              ))}
-            </AnimatePresence>
+            {leaderboard.map((team, index) => (
+              <tr key={team.teamId} className="row-fade">
+                <td>{index + 1}</td>
+                <td>{team.teamName}</td>
+                <td>{team.kills}</td>
+                <td>{team.totalPoints}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
   {/* Notifications are handled globally by NotificationProvider */}

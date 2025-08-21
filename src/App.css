@@ -310,3 +310,40 @@ tbody tr:nth-child(3) {
   text-align: center;
   font-weight: 500;
 }
+
+/* Simple CSS enter/exit animations used to replace framer-motion */
+.fade-enter {
+  animation: fadeInUp 300ms ease both;
+}
+
+.team-fade {
+  animation: fadeIn 260ms ease both;
+}
+
+.row-fade {
+  animation: fadeIn 220ms ease both;
+}
+
+.toast {
+  padding: 10px 14px;
+  border-radius: 8px;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+  background: #334155;
+  animation: slideIn 220ms ease both;
+}
+.toast.success { background: #16a34a; }
+.toast.error { background: #e53e3e; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
