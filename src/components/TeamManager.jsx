@@ -1,10 +1,13 @@
 // src/components/TeamManager.jsx
 
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useNotification } from './NotificationProvider';
 
 function TeamManager({ tournament, updateTournament }) {
   const [teamName, setTeamName] = useState('');
   const [players, setPlayers] = useState(['', '', '', '']);
+  const { showToast, setLoading } = useNotification();
 
   const handlePlayerChange = (index, value) => {
     const newPlayers = [...players];
@@ -24,16 +27,41 @@ function TeamManager({ tournament, updateTournament }) {
       name: teamName,
       players: players,
     };
-
     const updatedTournament = {
       ...tournament,
       teams: [...tournament.teams, newTeam],
     };
-    updateTournament(updatedTournament);
 
-    // Reset form
-    setTeamName('');
-    setPlayers(['', '', '', '']);
+    setLoading(true);
+    updateTournament(updatedTournament)
+      .then(() => {
+        showToast('Team saved', 'success');
+        // Reset form
+        setTeamName('');
+        setPlayers(['', '', '', '']);
+      })
+      .catch((err) => {
+        showToast('Failed to save team', 'error');
+        console.error(err);
+      })
+      .finally(() => setLoading(false));
+  };
+
+  const handleDeleteTeam = (teamId) => {
+    const remaining = tournament.teams.filter((t) => t.id !== teamId);
+    const updatedTournament = { ...tournament, teams: remaining };
+    // Prepare undo
+    const undo = () => updateTournament(tournament);
+    setLoading(true);
+    updateTournament(updatedTournament)
+      .then(() => {
+        showToast({ message: 'Team deleted', type: 'info', ttl: 5000, undo });
+      })
+      .catch((err) => {
+        showToast('Failed to delete team', 'error');
+        console.error(err);
+      })
+      .finally(() => setLoading(false));
   };
 
   return (
@@ -67,18 +95,35 @@ function TeamManager({ tournament, updateTournament }) {
       {tournament.teams.length > 0 && (
         <div className="card">
           <h2>Registered Teams</h2>
-          {tournament.teams.map(team => (
-            <div key={team.id} className="team-details">
-              <h3>{team.name}</h3>
-              <ul>
-                {team.players.map((player, i) => (
-                  <li key={i}>{player}</li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          <AnimatePresence>
+            {tournament.teams.map(team => (
+              <motion.div
+                key={team.id}
+                className="team-details"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.25 }}
+                layout
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h3 style={{ margin: 0 }}>{team.name}</h3>
+                  <div>
+                    <button onClick={() => handleDeleteTeam(team.id)} style={{ marginLeft: 8 }}>Delete</button>
+                  </div>
+                </div>
+                <ul>
+                  {team.players.map((player, i) => (
+                    <li key={i}>{player}</li>
+                  ))}
+                </ul>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
       )}
+
+  {/* Notifications are handled globally by NotificationProvider */}
     </div>
   );
 }

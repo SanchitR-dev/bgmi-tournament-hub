@@ -4,12 +4,16 @@
 // A new tab-specific warning has been added.
 
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useNotification } from './NotificationProvider';
 
 const POINT_PER_KILL = 1;
+import { calculateTotalPoints as calcPoints } from '../utils/scoring';
 
 function MatchManager({ tournament, updateTournament }) {
   const [matchResults, setMatchResults] = useState([]);
   const [pointSystem, setPointSystem] = useState(tournament.pointSystem);
+  const { showToast, setLoading } = useNotification();
 
   useEffect(() => {
     setMatchResults(
@@ -41,15 +45,17 @@ function MatchManager({ tournament, updateTournament }) {
           ...tournament,
           pointSystem: pointSystem
       };
-      updateTournament(updatedTournament);
-      alert('Point system saved!');
+      setLoading(true);
+      updateTournament(updatedTournament)
+        .then(() => showToast('Point system saved!', 'success'))
+        .catch((err) => {
+          showToast('Failed to save point system', 'error');
+          console.error(err);
+        })
+        .finally(() => setLoading(false));
   }
 
-  const calculateTotalPoints = (rank, kills) => {
-    const placementScore = rank > 0 && rank <= pointSystem.length ? pointSystem[rank - 1] : 0;
-    const killScore = kills * POINT_PER_KILL;
-    return placementScore + killScore;
-  };
+  const calculateTotalPoints = (rank, kills) => calcPoints(rank, kills, pointSystem, POINT_PER_KILL);
 
   const leaderboard = matchResults
     .map(r => ({
@@ -119,16 +125,25 @@ function MatchManager({ tournament, updateTournament }) {
             </tr>
           </thead>
           <tbody>
-            {leaderboard.map((team, index) => (
-              <tr key={team.teamId}>
-                <td>{index + 1}</td>
-                <td>{team.teamName}</td>
-                <td>{team.kills}</td>
-                <td>{team.totalPoints}</td>
-              </tr>
-            ))}
+            <AnimatePresence>
+              {leaderboard.map((team, index) => (
+                <motion.tr
+                  key={team.teamId}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.22 }}
+                >
+                  <td>{index + 1}</td>
+                  <td>{team.teamName}</td>
+                  <td>{team.kills}</td>
+                  <td>{team.totalPoints}</td>
+                </motion.tr>
+              ))}
+            </AnimatePresence>
           </tbody>
         </table>
+  {/* Notifications are handled globally by NotificationProvider */}
       </div>
     </div>
   );

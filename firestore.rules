@@ -1,0 +1,10 @@
+// Example Firestore rules: only authenticated users can write tournaments; reads allowed to everyone.
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /tournaments/{tournamentId} {
+      allow read: if true;
+      allow create, update, delete: if request.auth != null;
+    }
+  }
+}
