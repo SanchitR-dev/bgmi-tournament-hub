@@ -29,19 +29,20 @@ const firebaseConfig = {
 };
 
 let db;
+let auth;
+let firebaseApp;
 export function initFirebase() {
-  if (db) return db;
+  if (db && firebaseApp) return db;
   try {
-    const app = initializeApp(firebaseConfig);
-    db = getFirestore(app);
+    firebaseApp = initializeApp(firebaseConfig);
+    db = getFirestore(firebaseApp);
+    auth = getAuth(firebaseApp);
     return db;
   } catch (err) {
     console.warn('Firebase init failed (check .env):', err.message || err);
     return null;
   }
 }
-
-      auth = getAuth(app);
 // Subscribe to tournaments collection in realtime
 export function subscribeTournaments(onUpdate) {
   const database = initFirebase();
